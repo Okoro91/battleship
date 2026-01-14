@@ -4,13 +4,15 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "test": "jest",
     "start": "webpack serve --open --config webpack.dev.js",
     "build": "webpack --config webpack.prod.js",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "prepare": "husky"
+    "prepare": "husky",
+    "watch": "jest --watch *.js"
   },
   "repository": {
     "type": "git",
@@ -24,7 +26,10 @@
   },
   "homepage": "https://github.com/Okoro91/webpack-template#readme",
   "devDependencies": {
+    "@babel/core": "^7.28.6",
+    "@babel/preset-env": "^7.28.6",
     "@eslint/js": "^9.39.1",
+    "babel-jest": "^30.2.0",
     "css-loader": "^7.1.2",
     "eslint": "^9.39.1",
     "eslint-config-prettier": "^10.1.8",
@@ -32,6 +37,7 @@
     "html-loader": "^5.1.0",
     "html-webpack-plugin": "^5.6.5",
     "husky": "^9.1.7",
+    "jest": "^30.2.0",
     "lint-staged": "^16.2.7",
     "prettier": "3.7.4",
     "style-loader": "^4.0.0",

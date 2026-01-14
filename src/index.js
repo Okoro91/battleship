@@ -1,6 +1,7 @@
 import loadHome from "./pages/home";
 import loadAbout from "./pages/about";
 import loadContact from "./pages/contact";
+import "./styles.css";
 
 loadHome();
 
