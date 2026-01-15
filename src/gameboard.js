@@ -45,6 +45,7 @@ export default class Gameboard {
   }
 
   receiveAttack(x, y) {
+    // Validate coordinates
     if (!this.isWithinBounds(x, y)) {
       return "invalid coordinates";
     }
@@ -59,6 +60,12 @@ export default class Gameboard {
     const target = this.board[x][y];
     if (target instanceof Ship) {
       target.hit();
+
+      // Check if this hit sunk the ship
+      if (target.isSunk()) {
+        return "sunk";
+      }
+
       return "hit";
     } else {
       this.missedAttacks.push([x, y]);

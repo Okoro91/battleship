@@ -188,3 +188,272 @@ body {
   font-size: 0.9rem;
   color: #34495e;
 }
+
+/* Hit streak animation */
+@keyframes hitStreak {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.hit-streak .board-cell.hit {
+  animation: hitStreak 0.5s ease-in-out;
+}
+
+.hit-streak-message {
+  color: #f39c12;
+  font-weight: bold;
+  font-style: italic;
+  margin-top: 5px;
+}
+
+/* Game Over Modal */
+.game-over-modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  z-index: 1000;
+  justify-content: center;
+  align-items: center;
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.modal-content {
+  background: white;
+  padding: 40px;
+  border-radius: 15px;
+  text-align: center;
+  max-width: 500px;
+  width: 90%;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  position: relative;
+  animation: slideUp 0.4s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.modal-title {
+  color: #2c3e50;
+  font-size: 2.5rem;
+  margin-bottom: 20px;
+}
+
+.modal-message {
+  font-size: 1.3rem;
+  margin: 20px 0;
+  line-height: 1.5;
+  font-weight: bold;
+}
+
+.play-again-btn {
+  background: linear-gradient(to right, #2ecc71, #27ae60);
+  color: white;
+  border: none;
+  padding: 15px 40px;
+  font-size: 1.2rem;
+  border-radius: 30px;
+  cursor: pointer;
+  margin-top: 20px;
+  transition: all 0.3s ease;
+}
+
+.play-again-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 5px 15px rgba(46, 204, 113, 0.4);
+}
+
+.close-modal-btn {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: #e74c3c;
+  color: white;
+  border: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  font-size: 1.2rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.3s ease;
+}
+
+.close-modal-btn:hover {
+  background: #c0392b;
+}
+
+/* Confetti effect for win */
+@keyframes confetti {
+  0% {
+    transform: translateY(0) rotate(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+.confetti {
+  position: fixed;
+  width: 10px;
+  height: 10px;
+  background: #f1c40f;
+  top: -10px;
+  opacity: 0;
+}
+
+/* Ship sunk animation */
+@keyframes shipSunk {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.board-cell.sunk {
+  animation: shipSunk 0.5s ease-in-out 3;
+  background: #9b59b6 !important;
+}
+
+/* Hit streak indicator */
+.hit-streak-indicator {
+  display: inline-block;
+  background: linear-gradient(45deg, #ff6b6b, #ee5a24, #ff9f43);
+  color: white;
+  padding: 5px 15px;
+  border-radius: 20px;
+  margin-left: 10px;
+  font-size: 0.9rem;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+/* Sunk ship styling */
+.board-cell.sunk {
+  background: #9b59b6 !important;
+  color: white;
+  animation: pulseSunk 0.5s ease-in-out 3;
+}
+
+@keyframes pulseSunk {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* For computer board - show sunk ships even if normally hidden */
+.computer-board .board-cell.sunk {
+  background: #9b59b6 !important;
+}
+
+/* For human board - sunk ships are visible */
+.human-board .board-cell.sunk {
+  background: #8e44ad !important;
+}
+
+/* Board state styles */
+.computer-board .board-grid.disabled {
+  pointer-events: none;
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Turn indicator */
+.turn-indicator {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-left: 10px;
+  animation: pulse 1.5s infinite;
+}
+
+.turn-indicator.human {
+  background-color: #2ecc71;
+}
+
+.turn-indicator.computer {
+  background-color: #e74c3c;
+}
+
+/* Loading animation for computer turn */
+.computer-thinking {
+  position: relative;
+}
+
+.computer-thinking::after {
+  content: "🤔";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 2rem;
+  animation: thinking 2s infinite;
+}
+
+@keyframes thinking {
+  0%,
+  100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* Prevent text selection during game */
+.board-grid {
+  user-select: none;
+}

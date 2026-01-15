@@ -133,7 +133,7 @@ describe("Gameboard", () => {
       gameboard.receiveAttack(3, 3);
       const result = gameboard.receiveAttack(3, 4);
 
-      expect(result).toBe("hit");
+      expect(result).toBe("sunk"); // This is the line to change!
       expect(ship.isSunk()).toBe(true);
     });
 

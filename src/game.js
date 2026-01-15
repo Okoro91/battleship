@@ -103,7 +103,12 @@ export default class Game {
 
   processHumanAttack(x, y) {
     if (this.gameOver) {
-      return "game over";
+      return { result: "game over" };
+    }
+
+    // Validate that it's actually human's turn
+    if (this.getCurrentPlayer().name !== "Human") {
+      return { result: "not your turn" };
     }
 
     const humanPlayer = this.players[0];
@@ -111,22 +116,29 @@ export default class Game {
 
     const result = humanPlayer.attack(computerPlayer.gameboard, x, y);
 
-    if (result === "hit" || result === "miss") {
+    if (result === "hit" || result === "miss" || result === "sunk") {
       this.checkGameOver();
 
-      if (!this.gameOver) {
+      // Only switch turn if it's a miss
+      if (!this.gameOver && result === "miss") {
         this.switchTurn();
-        // Computer will make its move immediately
-        setTimeout(() => this.processComputerAttack(), 500);
+        return { result, nextPlayer: "computer" };
       }
+
+      return { result, nextPlayer: "human" };
     }
 
-    return result;
+    return { result };
   }
 
   processComputerAttack() {
     if (this.gameOver) {
-      return "game over";
+      return { result: "game over" };
+    }
+
+    // Validate that it's actually computer's turn
+    if (this.getCurrentPlayer().name !== "Computer") {
+      return { result: "not your turn" };
     }
 
     const computerPlayer = this.players[1];
@@ -136,19 +148,34 @@ export default class Game {
 
     if (result === "no moves left") {
       this.gameOver = true;
-      this.winner = humanPlayer; // Human wins by default
-      return result;
+      this.winner = humanPlayer;
+      return { result: "no moves left" };
     }
 
-    if (result === "hit" || result === "miss") {
+    if (result === "hit" || result === "miss" || result === "sunk") {
       this.checkGameOver();
 
       if (!this.gameOver) {
-        this.switchTurn();
+        // Only switch turn if it's a miss
+        if (result === "miss") {
+          this.switchTurn();
+          return { result, nextPlayer: "human" };
+        }
+        return { result, nextPlayer: "computer" }; // Computer gets another turn
       }
     }
 
-    return result;
+    return { result };
+  }
+
+  getLastComputerAttack() {
+    const computerPlayer = this.players[1];
+    const attacks = Array.from(computerPlayer.attacksMade);
+    if (attacks.length === 0) return null;
+
+    const lastAttack = attacks[attacks.length - 1];
+    const [x, y] = lastAttack.split(",").map(Number);
+    return { x, y };
   }
 
   checkGameOver() {
