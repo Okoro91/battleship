@@ -18,15 +18,32 @@ export default class Game {
     this.winner = null;
     this.currentPlayerIndex = 0;
 
-    // Reset players
+    // Reset players (only if they have the required methods)
     this.players.forEach((player) => {
-      player.gameboard = new player.gameboard.constructor();
+      // Check if player has a gameboard constructor
+      if (player.gameboard && player.gameboard.constructor) {
+        player.gameboard = new player.gameboard.constructor();
+      }
+
+      // Reset attacks and available moves
       player.attacksMade = new Set();
-      player.availableMoves = player.generateAllCoordinates();
+
+      // Only call generateAllCoordinates if it exists
+      if (typeof player.generateAllCoordinates === "function") {
+        player.availableMoves = player.generateAllCoordinates();
+      } else {
+        // Fallback: generate coordinates manually
+        player.availableMoves = Array.from({ length: 100 }, (_, index) => [
+          Math.floor(index / 10),
+          index % 10,
+        ]);
+      }
     });
 
     // Place ships for computer (random)
-    this.players[1].placeAllShipsRandomly();
+    if (this.players[1].placeAllShipsRandomly) {
+      this.players[1].placeAllShipsRandomly();
+    }
 
     // Place ships for human
     if (predeterminedShips && predeterminedShips.length > 0) {

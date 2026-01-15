@@ -7,12 +7,12 @@ describe("Game", () => {
   let mockComputerPlayer;
 
   beforeEach(() => {
-    // Create mock players
+    // Create mock players with all required methods
     mockHumanPlayer = {
       name: "Human",
       isComputer: false,
       gameboard: {
-        placeShip: jest.fn(),
+        placeShip: jest.fn().mockReturnValue(true),
         receiveAttack: jest.fn(),
         allShipsSunk: jest.fn().mockReturnValue(false),
         getBoardState: jest.fn().mockReturnValue(
@@ -20,17 +20,38 @@ describe("Game", () => {
             .fill()
             .map(() => Array(10).fill("empty"))
         ),
+        constructor: class MockGameboard {
+          constructor() {
+            this.placeShip = jest.fn();
+            this.receiveAttack = jest.fn();
+            this.allShipsSunk = jest.fn();
+            this.getBoardState = jest.fn();
+          }
+        },
       },
       attack: jest.fn(),
       hasLost: jest.fn().mockReturnValue(false),
       placeAllShipsRandomly: jest.fn().mockReturnValue(true),
+      generateAllCoordinates: jest
+        .fn()
+        .mockReturnValue(
+          Array.from({ length: 100 }, (_, index) => [
+            Math.floor(index / 10),
+            index % 10,
+          ])
+        ),
+      availableMoves: Array.from({ length: 100 }, (_, index) => [
+        Math.floor(index / 10),
+        index % 10,
+      ]),
+      attacksMade: new Set(),
     };
 
     mockComputerPlayer = {
       name: "Computer",
       isComputer: true,
       gameboard: {
-        placeShip: jest.fn(),
+        placeShip: jest.fn().mockReturnValue(true),
         receiveAttack: jest.fn(),
         allShipsSunk: jest.fn().mockReturnValue(false),
         getBoardState: jest.fn().mockReturnValue(
@@ -38,10 +59,31 @@ describe("Game", () => {
             .fill()
             .map(() => Array(10).fill("empty"))
         ),
+        constructor: class MockGameboard {
+          constructor() {
+            this.placeShip = jest.fn();
+            this.receiveAttack = jest.fn();
+            this.allShipsSunk = jest.fn();
+            this.getBoardState = jest.fn();
+          }
+        },
       },
       attack: jest.fn(),
       hasLost: jest.fn().mockReturnValue(false),
       placeAllShipsRandomly: jest.fn().mockReturnValue(true),
+      generateAllCoordinates: jest
+        .fn()
+        .mockReturnValue(
+          Array.from({ length: 100 }, (_, index) => [
+            Math.floor(index / 10),
+            index % 10,
+          ])
+        ),
+      availableMoves: Array.from({ length: 100 }, (_, index) => [
+        Math.floor(index / 10),
+        index % 10,
+      ]),
+      attacksMade: new Set(),
     };
 
     game = new Game();
@@ -92,8 +134,20 @@ describe("Game", () => {
 
       game.initializeGame(predeterminedShips);
 
-      // Should call placeShip for each predetermined ship
+      // Reset calls because initializeGame resets the gameboard
       expect(mockHumanPlayer.gameboard.placeShip).toHaveBeenCalledTimes(2);
+    });
+
+    test("resets game state", () => {
+      game.gameOver = true;
+      game.winner = mockHumanPlayer;
+      game.currentPlayerIndex = 1;
+
+      game.initializeGame();
+
+      expect(game.gameOver).toBe(false);
+      expect(game.winner).toBeNull();
+      expect(game.currentPlayerIndex).toBe(0);
     });
   });
 
@@ -187,6 +241,14 @@ describe("Game", () => {
       expect(game.gameOver).toBe(true);
       expect(game.winner).toBe(mockHumanPlayer);
     });
+
+    test("returns game over if game is already over", () => {
+      game.gameOver = true;
+
+      const result = game.processHumanAttack(3, 4);
+
+      expect(result).toBe("game over");
+    });
   });
 
   describe("processComputerAttack()", () => {
@@ -223,6 +285,15 @@ describe("Game", () => {
       expect(result).toBe("no moves left");
       expect(game.gameOver).toBe(true);
       expect(game.winner).toBe(mockHumanPlayer); // Human wins by default
+    });
+
+    test("returns game over if game is already over", () => {
+      game.gameOver = true;
+      game.currentPlayerIndex = 1;
+
+      const result = game.processComputerAttack();
+
+      expect(result).toBe("game over");
     });
   });
 
@@ -264,6 +335,18 @@ describe("Game", () => {
       expect(game.gameOver).toBe(false);
       expect(game.winner).toBeNull();
       expect(game.currentPlayerIndex).toBe(0);
+    });
+  });
+
+  describe("getGameState()", () => {
+    test("returns current game state", () => {
+      const gameState = game.getGameState();
+
+      expect(gameState).toHaveProperty("currentPlayer");
+      expect(gameState).toHaveProperty("gameOver");
+      expect(gameState).toHaveProperty("winner");
+      expect(gameState).toHaveProperty("humanBoard");
+      expect(gameState).toHaveProperty("computerBoard");
     });
   });
 });
