@@ -153,7 +153,6 @@ export default class UI {
     boardGrid.addEventListener("dragover", (e) => this.handleDragOver(e));
     boardGrid.addEventListener("dragleave", (e) => this.handleDragLeave(e));
     boardGrid.addEventListener("drop", (e) => this.handleDrop(e));
-    boardGrid.addEventListener("click", (e) => this.handleBoardClick(e));
 
     // Shipyard Events
     document.querySelectorAll(".ship-token-container").forEach((ship) => {
@@ -392,54 +391,6 @@ export default class UI {
   }
 
   // ========== ROTATE SHIPS LOGIC ==========
-
-  handleBoardClick(event) {
-    const shipElement = event.target.closest(".ship-element");
-    if (shipElement) {
-      this.rotatePlacedShip(shipElement);
-    }
-  }
-
-  rotatePlacedShip(shipElement) {
-    const name = shipElement.dataset.name;
-    const row = parseInt(shipElement.dataset.row);
-    const col = parseInt(shipElement.dataset.col);
-    const length = parseInt(shipElement.dataset.length);
-    const currentOrient = shipElement.dataset.orientation;
-    const newOrient =
-      currentOrient === "horizontal" ? "vertical" : "horizontal";
-
-    // Check if new position is valid
-    if (this.isValidPlacement(row, col, length, newOrient)) {
-      // Remove from gameboard
-      if (this.game.players[0].gameboard.removeShip) {
-        this.game.players[0].gameboard.removeShip(name);
-      }
-
-      // Clear old positions
-      Array.from({ length }, (_, i) => {
-        const r = currentOrient === "horizontal" ? row : row + i;
-        const c = currentOrient === "horizontal" ? col + i : col;
-        this.playerShipPositions.delete(`${r},${c}`);
-      });
-
-      // Remove old element
-      shipElement.remove();
-      this.shipElements.delete(name);
-      this.placedShips.delete(name);
-
-      // Re-place with new orientation
-      const placed = this.placeShipOnBoard(name, length, row, col, newOrient);
-
-      if (placed) {
-        this.soundManager?.play("rotate");
-      }
-    } else {
-      shipElement.classList.add("invalid-rotation");
-      this.soundManager?.play("invalid");
-      setTimeout(() => shipElement.classList.remove("invalid-rotation"), 400);
-    }
-  }
 
   rotateShipInShipyard(shipContainer) {
     const currentOrientation = shipContainer.dataset.orientation;
