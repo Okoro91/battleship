@@ -36,7 +36,6 @@ h2 {
   text-align: center;
 }
 
-/* ============ SETUP PHASE ============ */
 .setup-area {
   display: flex;
   gap: 40px;
@@ -45,7 +44,6 @@ h2 {
   justify-content: center;
 }
 
-/* Shipyard (Left Side) */
 .shipyard-container {
   min-width: 250px;
 }
@@ -74,7 +72,6 @@ h2 {
   color: #666;
 }
 
-/* The Draggable Ship Container */
 .ship-token-container {
   background: var(--water-color);
   border: 1px dashed #90caf9;
@@ -109,12 +106,11 @@ h2 {
 }
 
 .ship-token-container img {
-  pointer-events: none; /* Crucial for drag image */
+  pointer-events: none;
   max-width: 60px;
   display: block;
 }
 
-/* ============ BOARDS ============ */
 .placement-container {
   display: flex;
   flex-direction: column;
@@ -129,13 +125,12 @@ h2 {
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
-/* THE GRID */
 .board-grid {
   position: relative;
   display: grid;
-  grid-template-columns: repeat(10, 30px); /* Match your CELL_SIZE */
+  grid-template-columns: repeat(10, 30px);
   grid-template-rows: repeat(10, 30px);
-  gap: 2px; /* Match your GRID_GAP */
+  gap: 2px;
   padding: 0;
   border: 2px solid #004d99;
   background-color: #004d99;
@@ -150,7 +145,6 @@ h2 {
   overflow: visible;
 }
 
-/* Drag Over Effects */
 .board-cell.drop-hover {
   background-color: #b3e5fc !important;
 }
@@ -160,18 +154,16 @@ h2 {
   background-color: #ffcdd2 !important;
 }
 
-/* Preview Styles */
 .ship-preview {
   opacity: 0.7;
 }
 .preview-valid {
-  background-color: #c8e6c9 !important; /* Green */
+  background-color: #c8e6c9 !important;
 }
 .preview-invalid {
-  background-color: #ffcdd2 !important; /* Red */
+  background-color: #ffcdd2 !important;
 }
 
-/* Placed Ship (Absolute Positioned) */
 .ship-element {
   position: absolute;
   z-index: 1 !important;
@@ -179,7 +171,6 @@ h2 {
   transition: opacity 0.4s ease;
 }
 
-/* Battle Phase Styles */
 .game-boards {
   display: flex;
   gap: 30px;
@@ -193,7 +184,7 @@ h2 {
 
 .board-cell.hit {
   background-color: var(--hit-color);
-  background-image: url("./assets/images/hit.png"); /* Ensure path is correct */
+  background-image: url("./assets/images/hit.png");
   background-size: cover;
 }
 
@@ -213,7 +204,7 @@ h2 {
   left: 0;
   width: 100%;
   height: 100%;
-  z-index: 10 !important; /* Higher than ship-element */
+  z-index: 10 !important;
   background-size: contain;
   background-repeat: no-repeat;
   pointer-events: none;
@@ -234,7 +225,7 @@ h2 {
   opacity: 0.8;
   transition: opacity 0.5s ease-in;
 }
-/* Controls */
+
 .setup-controls {
   margin-top: 20px;
   display: flex;
@@ -277,7 +268,6 @@ button:active {
   background-color: #43a047;
 }
 
-/* Modal */
 .game-over-modal {
   position: fixed;
   top: 0;

@@ -8,9 +8,6 @@ import submarineH from "./assets/images/submarine-horizontal.png";
 import submarineV from "./assets/images/submarine-vertical.png";
 import destroyerH from "./assets/images/destroyer-horizontal.png";
 import destroyerV from "./assets/images/destroyer-vertical.png";
-import hitImg from "./assets/images/hit.png";
-import missImg from "./assets/images/miss.png";
-import sunkImg from "./assets/images/sunk.png";
 import Ship from "./ship";
 
 const shipImages = {
