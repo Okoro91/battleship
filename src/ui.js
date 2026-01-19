@@ -24,6 +24,7 @@ const shipImages = {
 const CELL_SIZE = 30; // 30px
 const GRID_GAP = 2; // 2px
 const BOARD_PADDING = 0;
+const BOARD_SIZE = 10;
 
 export default class UI {
   constructor() {
@@ -152,6 +153,7 @@ export default class UI {
     boardGrid.addEventListener("dragover", (e) => this.handleDragOver(e));
     boardGrid.addEventListener("dragleave", (e) => this.handleDragLeave(e));
     boardGrid.addEventListener("drop", (e) => this.handleDrop(e));
+    boardGrid.addEventListener("click", (e) => this.handleBoardClick(e));
 
     // Shipyard Events
     document.querySelectorAll(".ship-token-container").forEach((ship) => {
@@ -159,9 +161,12 @@ export default class UI {
       ship.addEventListener("dragend", (e) => this.handleDragEnd(e));
     });
 
-    boardGrid.addEventListener("click", (e) => {
-      const shipEl = e.target.closest(".ship-element");
-      if (shipEl) this.handleShipClick(e, shipEl);
+    // Shipyard rotation listeners
+    document.querySelectorAll(".ship-token-container").forEach((container) => {
+      container.addEventListener("click", (e) => {
+        e.stopPropagation();
+        this.rotateShipInShipyard(container);
+      });
     });
 
     // Buttons
@@ -270,12 +275,11 @@ export default class UI {
       orientation
     );
 
-    // Map positions for collision detection
-    for (let i = 0; i < length; i++) {
+    Array.from({ length }, (_, i) => {
       const r = orientation === "horizontal" ? startRow : startRow + i;
       const c = orientation === "horizontal" ? startCol + i : startCol;
       this.playerShipPositions.set(`${r},${c}`, shipName);
-    }
+    });
 
     const boardGrid = document.querySelector(".placement-board .board-grid");
     if (boardGrid) boardGrid.appendChild(shipElement);
@@ -342,19 +346,19 @@ export default class UI {
   isValidPlacement(startRow, startCol, length, orientation) {
     if (startRow < 0 || startCol < 0) return false;
 
-    if (orientation === "horizontal") {
-      if (startCol + length > 10) return false;
-    } else {
-      if (startRow + length > 10) return false;
-    }
+    const endRow =
+      orientation === "vertical" ? startRow + length - 1 : startRow;
+    const endCol =
+      orientation === "horizontal" ? startCol + length - 1 : startCol;
+
+    if (endRow >= BOARD_SIZE || endCol >= BOARD_SIZE) return false;
 
     // Check collisions
-    for (let i = 0; i < length; i++) {
+    return Array.from({ length }, (_, i) => {
       const r = orientation === "horizontal" ? startRow : startRow + i;
       const c = orientation === "horizontal" ? startCol + i : startCol;
-      if (this.playerShipPositions.has(`${r},${c}`)) return false;
-    }
-    return true;
+      return `${r},${c}`;
+    }).every((position) => !this.playerShipPositions.has(position));
   }
 
   showShipPreview(cell) {
@@ -363,78 +367,106 @@ export default class UI {
     const { length, orientation } = this.draggedShip;
     const isValid = this.isValidPlacement(row, col, length, orientation);
 
-    for (let i = 0; i < length; i++) {
+    Array.from({ length }, (_, i) => {
       const r = orientation === "horizontal" ? row : row + i;
       const c = orientation === "horizontal" ? col + i : col;
 
-      // Don't visualize off-board
-      if (r >= 10 || c >= 10) continue;
+      if (r >= BOARD_SIZE || c >= BOARD_SIZE) return;
 
       const previewCell = document.querySelector(
         `.board-cell[data-row="${r}"][data-col="${c}"]`
       );
       if (previewCell) {
-        previewCell.classList.add("ship-preview");
         previewCell.classList.add(
+          "ship-preview",
           isValid ? "preview-valid" : "preview-invalid"
         );
       }
-    }
+    });
   }
 
   clearShipPreview() {
-    document
-      .querySelectorAll(".ship-preview")
-      .forEach((el) =>
-        el.classList.remove("ship-preview", "preview-valid", "preview-invalid")
-      );
+    document.querySelectorAll(".ship-preview").forEach((el) => {
+      el.classList.remove("ship-preview", "preview-valid", "preview-invalid");
+    });
   }
 
-  // ========== ROTATION ==========
+  // ========== ROTATE SHIPS LOGIC ==========
 
-  handleShipClick(event, shipEl) {
-    const name = shipEl.dataset.name;
-    const row = parseInt(shipEl.dataset.row);
-    const col = parseInt(shipEl.dataset.col);
-    const length = parseInt(shipEl.dataset.length);
-    const currentOrient = shipEl.dataset.orientation;
+  handleBoardClick(event) {
+    const shipElement = event.target.closest(".ship-element");
+    if (shipElement) {
+      this.rotatePlacedShip(shipElement);
+    }
+  }
+
+  rotatePlacedShip(shipElement) {
+    const name = shipElement.dataset.name;
+    const row = parseInt(shipElement.dataset.row);
+    const col = parseInt(shipElement.dataset.col);
+    const length = parseInt(shipElement.dataset.length);
+    const currentOrient = shipElement.dataset.orientation;
     const newOrient =
       currentOrient === "horizontal" ? "vertical" : "horizontal";
 
-    // 1. Temporarily remove from logic map to check if rotation is possible
-    for (let i = 0; i < length; i++) {
-      const r = currentOrient === "horizontal" ? row : row + i;
-      const c = currentOrient === "horizontal" ? col + i : col;
-      this.playerShipPositions.delete(`${r},${c}`);
-    }
-
-    // 2. Validate the new orientation
+    // Check if new position is valid
     if (this.isValidPlacement(row, col, length, newOrient)) {
-      // Remove old ship from both UI and Logic
+      // Remove from gameboard
       if (this.game.players[0].gameboard.removeShip) {
         this.game.players[0].gameboard.removeShip(name);
       }
-      shipEl.remove();
+
+      // Clear old positions
+      Array.from({ length }, (_, i) => {
+        const r = currentOrient === "horizontal" ? row : row + i;
+        const c = currentOrient === "horizontal" ? col + i : col;
+        this.playerShipPositions.delete(`${r},${c}`);
+      });
+
+      // Remove old element
+      shipElement.remove();
       this.shipElements.delete(name);
       this.placedShips.delete(name);
 
       // Re-place with new orientation
-      this.placeShipOnBoard(name, length, row, col, newOrient);
-      if (this.soundManager) this.soundManager.play("rotate");
-    } else {
-      // Put coordinates back if invalid
-      for (let i = 0; i < length; i++) {
-        const r = currentOrient === "horizontal" ? row : row + i;
-        const c = currentOrient === "horizontal" ? col + i : col;
-        this.playerShipPositions.set(`${r},${c}`, name);
+      const placed = this.placeShipOnBoard(name, length, row, col, newOrient);
+
+      if (placed) {
+        this.soundManager?.play("rotate");
       }
-      shipEl.classList.add("invalid-drop");
-      setTimeout(() => shipEl.classList.remove("invalid-drop"), 400);
-      if (this.soundManager) this.soundManager.play("invalid");
+    } else {
+      shipElement.classList.add("invalid-rotation");
+      this.soundManager?.play("invalid");
+      setTimeout(() => shipElement.classList.remove("invalid-rotation"), 400);
     }
   }
 
-  // ========== RANDOM & RESET (THE FIXES) ==========
+  rotateShipInShipyard(shipContainer) {
+    const currentOrientation = shipContainer.dataset.orientation;
+    const newOrientation =
+      currentOrientation === "horizontal" ? "vertical" : "horizontal";
+
+    shipContainer.dataset.orientation = newOrientation;
+
+    const shipImage = shipContainer.querySelector(".ship-image");
+    const shipName = shipContainer.dataset.name;
+    shipImage.src = shipImages[shipName][newOrientation];
+
+    // Update image styling
+    if (newOrientation === "horizontal") {
+      shipImage.style.width = "100%";
+      shipImage.style.height = "100%";
+      shipImage.style.objectFit = "contain";
+    } else {
+      shipImage.style.width = "100%";
+      shipImage.style.height = "100%";
+      shipImage.style.objectFit = "contain";
+    }
+
+    this.soundManager?.play("rotate");
+  }
+
+  // ========== RANDOM & RESET  ==========
 
   resetPlacement() {
     // 1. Clear Ship Elements from Board
@@ -514,17 +546,7 @@ export default class UI {
     }
   }
 
-  createGameOverModalHTML() {
-    return `
-      <div class="game-over-modal" style="display: none;">
-        <div class="modal-content">
-          <h2 class="modal-title">Game Over</h2>
-          <p class="modal-message"></p>
-          <button class="reset-btn control-btn">Play Again</button>
-        </div>
-      </div>
-    `;
-  }
+  // ========== BATTLE PHASE ==========
 
   setupEventListeners() {
     const startButton = document.getElementById("start-battle-btn");
@@ -708,15 +730,17 @@ export default class UI {
       let startRow = x;
       let startCol = y;
 
-      for (let r = 0; r < 10; r++) {
-        for (let c = 0; c < 10; c++) {
-          if (computerBoard.board[r][c] === shipObj) {
-            startRow = r;
-            startCol = c;
-            r = 10;
-            c = 10;
-          }
-        }
+      const cells = Array.from({ length: 10 }, (_, r) =>
+        Array.from({ length: 10 }, (_, c) => ({ r, c }))
+      ).flat();
+
+      const found = cells.find(
+        ({ r, c }) => computerBoard.board[r][c] === shipObj
+      );
+
+      if (found) {
+        startRow = found.r;
+        startCol = found.c;
       }
 
       const orientation =
@@ -741,24 +765,16 @@ export default class UI {
     }
   }
 
-  rotateShip(shipElement) {
-    const currentOrientation = shipElement.dataset.orientation;
-    const newOrientation =
-      currentOrientation === "horizontal" ? "vertical" : "horizontal";
-    shipElement.dataset.orientation = newOrientation;
-
-    const shipImage = shipElement.querySelector(".ship-image");
-    const shipName = shipElement.dataset.name;
-    shipImage.src = shipImages[shipName][newOrientation];
-
-    // Adjust image for orientation
-    if (newOrientation === "horizontal") {
-      shipImage.style.width = "100%";
-      shipImage.style.height = "auto";
-    } else {
-      shipImage.style.width = "auto";
-      shipImage.style.height = "100%";
-    }
+  createGameOverModalHTML() {
+    return `
+      <div class="game-over-modal" style="display: none;">
+        <div class="modal-content">
+          <h2 class="modal-title">Game Over</h2>
+          <p class="modal-message"></p>
+          <button class="reset-btn control-btn">Play Again</button>
+        </div>
+      </div>
+    `;
   }
 
   showGameOverModal(winner) {
