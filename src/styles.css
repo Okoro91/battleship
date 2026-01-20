@@ -75,15 +75,12 @@ body {
 }
 
 .setup-phase h1 {
-  font-size: 2.5rem;
-  font-weight: 900;
-  background: linear-gradient(45deg, var(--wave-blue), #6a4c4c);
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   text-align: center;
-  margin-bottom: 16px;
-  text-shadow: 0 2px 4px #16e0e74d;
+  margin-bottom: 5px;
+  position: relative;
 }
 
 .instructions {
@@ -92,7 +89,7 @@ body {
   background: var(--wave-blue);
   font-size: 1.1rem;
   font-weight: 800;
-  margin-bottom: 24px;
+  margin-bottom: 15px;
   max-width: 500px;
   margin-left: auto;
   margin-right: auto;
@@ -104,7 +101,6 @@ body {
 .setup-area {
   display: flex;
   gap: 40px;
-  margin-bottom: 20px;
   flex-wrap: wrap;
   justify-content: center;
   align-items: center;
@@ -454,7 +450,7 @@ body {
 }
 
 .board-title::before {
-  content: "✧";
+  content: "⭐";
   position: absolute;
   left: 0;
   top: 50%;
@@ -465,7 +461,7 @@ body {
 }
 
 .board-title::after {
-  content: "✧";
+  content: "⭐";
   position: absolute;
   right: 0;
   top: 50%;
@@ -512,7 +508,6 @@ body {
   text-shadow:
     0 2px 8px rgba(76, 175, 80, 0.3),
     0 4px 20px rgba(76, 175, 80, 0.4);
-  margin-bottom: 10px;
 }
 
 @media (max-width: 768px) {
@@ -552,23 +547,7 @@ body {
   }
 }
 
-#game-status:contains("Enemy is aiming...") {
-  animation:
-    status-glow 4s ease-in-out infinite,
-    thinking-pulse 1.5s ease-in-out infinite;
-}
-
-@keyframes thinking-pulse {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.7;
-  }
-}
-
-.game-header.victory h1 {
+.modal-message {
   animation:
     title-glow 3s ease-in-out infinite alternate,
     victory-sparkle 2s ease-in-out infinite;
@@ -705,8 +684,6 @@ body {
   display: flex;
   justify-content: center;
   gap: var(--spacing-md);
-  margin-top: var(--spacing-xl);
-  padding-top: var(--spacing-xl);
   border-top: 1px solid var(--border-color);
 }
 
@@ -731,21 +708,17 @@ body {
   margin: 0 auto;
 }
 
-.control-btn:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 20px rgba(57, 73, 171, 0.4);
+.control-btn:hover {
+  animation: pulse-ready 2s infinite;
+  box-shadow: 5px 4px 20px rgba(57, 73, 171, 0.4);
 }
 
-.control-btn:active:not(:disabled) {
-  transform: translateY(0);
-}
-
-.control-btn:disabled {
+.start-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
-.control-btn.ready {
+.start-btn.ready {
   background: linear-gradient(135deg, #4caf50, #2e7d32);
   animation: pulse-ready 2s infinite;
 }
@@ -762,6 +735,47 @@ body {
 
 .btn-text {
   font-weight: 600;
+}
+
+.icon img {
+  width: 100%;
+  height: 100%;
+}
+
+.icon {
+  display: flex;
+  align-items: center;
+  position: absolute;
+}
+.setup-phase h1 .icon {
+  left: 100px;
+  width: 110px;
+  height: 90px;
+}
+
+.game-header .icon {
+  left: 77px;
+  width: 110px;
+  height: 90px;
+}
+
+.control-btn .icon,
+.start-btn .icon {
+  width: 30px;
+  height: 25px;
+  z-index: 10;
+}
+
+#randomize-btn .icon {
+  left: 24%;
+}
+
+#reset-btn .icon {
+  left: 44%;
+}
+
+.start-btn .icon {
+  left: 61%;
 }
 
 #randomize-btn {

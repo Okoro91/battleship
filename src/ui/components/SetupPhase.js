@@ -1,6 +1,10 @@
 import { SHIP_IMAGES } from "../constants.js";
 import { DOMUtils } from "../utils/dom.js";
 import Ship from "../../ship.js";
+import shipSteer from "../../assets/icons/ship-steering.svg";
+import dice from "../../assets/icons/dice.svg";
+import start from "../../assets/icons/start.svg";
+import reset from "../../assets/icons/reset.svg";
 
 export class SetupPhase {
   constructor(ui) {
@@ -14,7 +18,7 @@ export class SetupPhase {
   render() {
     this.ui.gameContainer.innerHTML = `
       <div class="setup-phase" id="setup-phase">
-        <h1>🚢 Deploy Your Fleet</h1>
+        <h1><span class="icon"><img src="${shipSteer}" alt=""></span> Deploy Your Fleet</h1>
         <p class="instructions">Drag ships to your board. Tap placed ships to rotate.</p>
 
         <div class="setup-area">
@@ -35,13 +39,13 @@ export class SetupPhase {
 
         <div class="setup-controls">
           <button id="randomize-btn" class="control-btn">
-            🎲 Randomize
+          <span class="icon"><img src="${dice}" alt=""></span> Randomize
           </button>
           <button id="reset-btn" class="control-btn">
-            🔄 Reset
+          <span class="icon"><img src="${reset}" alt=""></span> Reset
           </button>
           <button id="start-battle-btn" class="start-btn" disabled>
-            ⚔️ Start Battle!
+          <span class="icon"><img src="${start}" alt=""></span> Start Battle!
           </button>
         </div>
       </div>

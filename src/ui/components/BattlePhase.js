@@ -1,4 +1,5 @@
 import { DOMUtils } from "../utils/dom.js";
+import sword from "../../assets/icons/sword.svg";
 
 export class BattlePhase {
   constructor(ui, setupPhase) {
@@ -11,19 +12,19 @@ export class BattlePhase {
     this.ui.gameContainer.innerHTML = `
       <div class="battle-phase">
         <div class="game-header">
-          <h1>⚔️ Battleship</h1>
+          <h1><span class="icon"><img src="${sword}" alt=""></span> Battleship</h1>
           <div class="game-status" id="game-status">Attack the enemy waters!</div>
         </div>
 
         <div class="game-boards">
-          <div class="game-board human-board">
+          <div  human-board">
             <h2 class="board-title">Your Fleet</h2>
             <div class="board-grid" id="human-board">
               ${DOMUtils.createBoardHTML("human")}
             </div>
           </div>
 
-          <div class="game-board computer-board">
+          <div  computer-board">
             <h2 class="board-title">Enemy Waters</h2>
             <div class="board-grid" id="computer-board">
               ${DOMUtils.createBoardHTML("computer")}

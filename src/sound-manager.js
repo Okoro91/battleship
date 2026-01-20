@@ -31,7 +31,6 @@ export default class SoundManager {
 
   play(soundName) {
     if (!this.muted && this.sounds[soundName]) {
-      // Clone the audio to allow rapid re-triggering (for multiple hits)
       const soundClone = this.sounds[soundName].cloneNode();
       soundClone.play().catch((e) => console.log("Audio play failed:", e));
     }
