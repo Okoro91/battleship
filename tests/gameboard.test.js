@@ -133,7 +133,7 @@ describe("Gameboard", () => {
       gameboard.receiveAttack(3, 3);
       const result = gameboard.receiveAttack(3, 4);
 
-      expect(result).toBe("sunk"); // This is the line to change!
+      expect(result).toBe("sunk");
       expect(ship.isSunk()).toBe(true);
     });
 
@@ -158,11 +158,9 @@ describe("Gameboard", () => {
       gameboard.placeShip(ship1, 0, 0, "horizontal");
       gameboard.placeShip(ship2, 5, 5, "vertical");
 
-      // Sink ship1
       gameboard.receiveAttack(0, 0);
       gameboard.receiveAttack(0, 1);
 
-      // Sink ship2
       gameboard.receiveAttack(5, 5);
       gameboard.receiveAttack(6, 5);
       gameboard.receiveAttack(7, 5);
@@ -177,11 +175,8 @@ describe("Gameboard", () => {
       gameboard.placeShip(ship1, 0, 0, "horizontal");
       gameboard.placeShip(ship2, 5, 5, "vertical");
 
-      // Only sink ship1
       gameboard.receiveAttack(0, 0);
       gameboard.receiveAttack(0, 1);
-
-      // Don't attack ship2
 
       expect(gameboard.allShipsSunk()).toBe(false);
     });
@@ -207,14 +202,14 @@ describe("Gameboard", () => {
       const ship = new Ship(2);
       gameboard.placeShip(ship, 1, 1, "horizontal");
 
-      gameboard.receiveAttack(1, 1); // Hit
-      gameboard.receiveAttack(5, 5); // Miss
+      gameboard.receiveAttack(1, 1);
+      gameboard.receiveAttack(5, 5);
 
       const boardState = gameboard.getBoardState();
 
       expect(boardState[1][1]).toBe("hit");
       expect(boardState[5][5]).toBe("miss");
-      expect(boardState[1][2]).toBe("ship"); // Untouched ship part
+      expect(boardState[1][2]).toBe("ship");
     });
   });
 });

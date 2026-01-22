@@ -14,28 +14,21 @@ export default class Gameboard {
   }
 
   placeShip(ship, x, y, orientation) {
-    // Validate inputs
     if (!(ship instanceof Ship) || ship.length < 1) return false;
     if (!["horizontal", "vertical"].includes(orientation)) return false;
     if (!this.isWithinBounds(x, y)) return false;
-
-    // Calculate all coordinates the ship will occupy
     const coordinates = Array.from({ length: ship.length }, (_, i) => {
       if (orientation === "horizontal") {
         return [x, y + i];
       }
       return [x + i, y];
     });
-
-    // Check if all coordinates are valid and not occupied
     const areAllValid = coordinates.every(
       ([newX, newY]) =>
         this.isWithinBounds(newX, newY) && this.board[newX][newY] === null
     );
 
     if (!areAllValid) return false;
-
-    // Place the ship on the board
     coordinates.forEach(([shipX, shipY]) => {
       this.board[shipX][shipY] = ship;
     });
@@ -45,7 +38,6 @@ export default class Gameboard {
   }
 
   receiveAttack(x, y) {
-    // Validate coordinates
     if (!this.isWithinBounds(x, y)) {
       return "invalid coordinates";
     }
@@ -60,8 +52,6 @@ export default class Gameboard {
     const target = this.board[x][y];
     if (target instanceof Ship) {
       target.hit();
-
-      // Check if this hit sunk the ship
       if (target.isSunk()) {
         return "sunk";
       }

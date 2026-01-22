@@ -12,7 +12,7 @@ export class BattlePhase {
     this.ui.gameContainer.innerHTML = `
       <div class="battle-phase">
         <div class="game-header">
-          <h1><span class="icon"><img src="${sword}" alt=""></span> Battleship</h1>
+          <h1><span class="icon"><img class="loading-spinner" src="${sword}" alt=""></span> Battleship</h1>
           <div class="game-status" id="game-status">Attack the enemy waters!</div>
         </div>
 
@@ -34,6 +34,10 @@ export class BattlePhase {
         <div class="setup-controls">
             <button class="reset-btn control-btn">Restart Game</button>
         </div>
+        <p  class="footer">
+        design & code by:
+        <a href="https://okoro91.github.io/portfolio/">mi okoro</a>
+      </p>
         ${DOMUtils.createGameOverModalHTML()}
       </div>
     `;
@@ -177,6 +181,7 @@ export class BattlePhase {
         if (enemyGrid) enemyGrid.appendChild(shipElement);
       }
     }
+    this.ui.soundManager?.play("sink");
   }
 
   showGameOverModal(winner) {
@@ -190,5 +195,7 @@ export class BattlePhase {
           : "💀 Defeat! The enemy sunk your fleet. 💀";
       modal.style.display = "flex";
     }
+
+    this.ui.soundManager?.play("gameover");
   }
 }

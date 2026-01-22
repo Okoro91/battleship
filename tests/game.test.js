@@ -7,7 +7,6 @@ describe("Game", () => {
   let mockComputerPlayer;
 
   beforeEach(() => {
-    // Create mock players with all required methods
     mockHumanPlayer = {
       name: "Human",
       isComputer: false,
@@ -134,7 +133,6 @@ describe("Game", () => {
 
       game.initializeGame(predeterminedShips);
 
-      // Reset calls because initializeGame resets the gameboard
       expect(mockHumanPlayer.gameboard.placeShip).toHaveBeenCalledTimes(2);
     });
 
@@ -201,21 +199,19 @@ describe("Game", () => {
 
   describe("processHumanAttack()", () => {
     test("continues turn on hit, switches turn on miss", () => {
-      // Test hit - should NOT switch turn
       mockHumanPlayer.attack.mockReturnValue("hit");
       const hitResult = game.processHumanAttack(3, 4);
 
-      expect(hitResult.result).toBe("hit"); // Changed to check result property
-      expect(hitResult.nextPlayer).toBe("human"); // Added nextPlayer check
-      expect(game.currentPlayerIndex).toBe(0); // Should NOT switch (still human)
+      expect(hitResult.result).toBe("hit");
+      expect(hitResult.nextPlayer).toBe("human");
+      expect(game.currentPlayerIndex).toBe(0);
 
-      // Test miss - should switch turn
       mockHumanPlayer.attack.mockReturnValue("miss");
       const missResult = game.processHumanAttack(5, 5);
 
-      expect(missResult.result).toBe("miss"); // Changed to check result property
-      expect(missResult.nextPlayer).toBe("computer"); // Added nextPlayer check
-      expect(game.currentPlayerIndex).toBe(1); // Should switch to computer
+      expect(missResult.result).toBe("miss");
+      expect(missResult.nextPlayer).toBe("computer");
+      expect(game.currentPlayerIndex).toBe(1);
     });
 
     test("does not switch turn on invalid attack", () => {
@@ -223,8 +219,8 @@ describe("Game", () => {
 
       const result = game.processHumanAttack(10, 10);
 
-      expect(result.result).toBe("invalid coordinates"); // Changed to check result property
-      expect(game.currentPlayerIndex).toBe(0); // Should not switch
+      expect(result.result).toBe("invalid coordinates");
+      expect(game.currentPlayerIndex).toBe(0);
     });
 
     test("does not switch turn on already attacked coordinate", () => {
@@ -232,8 +228,8 @@ describe("Game", () => {
 
       const result = game.processHumanAttack(5, 5);
 
-      expect(result.result).toBe("already attacked"); // Changed to check result property
-      expect(game.currentPlayerIndex).toBe(0); // Should not switch
+      expect(result.result).toBe("already attacked");
+      expect(game.currentPlayerIndex).toBe(0);
     });
 
     test("checks for game over after successful attack", () => {
@@ -251,36 +247,34 @@ describe("Game", () => {
 
       const result = game.processHumanAttack(3, 4);
 
-      expect(result.result).toBe("game over"); // Changed to check result property
+      expect(result.result).toBe("game over");
     });
 
     test("returns not your turn if not human's turn", () => {
-      game.currentPlayerIndex = 1; // Set to computer's turn
+      game.currentPlayerIndex = 1;
 
       const result = game.processHumanAttack(3, 4);
 
-      expect(result.result).toBe("not your turn"); // Added this test
+      expect(result.result).toBe("not your turn");
     });
   });
 
   describe("processComputerAttack()", () => {
     test("computer continues turn on hit, switches turn on miss", () => {
-      // Test hit - should NOT switch turn
       mockComputerPlayer.attack.mockReturnValue("hit");
       game.currentPlayerIndex = 1;
       const hitResult = game.processComputerAttack();
 
-      expect(hitResult.result).toBe("hit"); // Changed to check result property
-      expect(hitResult.nextPlayer).toBe("computer"); // Added nextPlayer check
-      expect(game.currentPlayerIndex).toBe(1); // Should NOT switch (still computer)
+      expect(hitResult.result).toBe("hit");
+      expect(hitResult.nextPlayer).toBe("computer");
+      expect(game.currentPlayerIndex).toBe(1);
 
-      // Test miss - should switch turn
       mockComputerPlayer.attack.mockReturnValue("miss");
       const missResult = game.processComputerAttack();
 
-      expect(missResult.result).toBe("miss"); // Changed to check result property
-      expect(missResult.nextPlayer).toBe("human"); // Added nextPlayer check
-      expect(game.currentPlayerIndex).toBe(0); // Should switch to human
+      expect(missResult.result).toBe("miss");
+      expect(missResult.nextPlayer).toBe("human");
+      expect(game.currentPlayerIndex).toBe(0);
     });
 
     test("checks for game over after computer attack", () => {
@@ -300,9 +294,9 @@ describe("Game", () => {
       game.currentPlayerIndex = 1;
       const result = game.processComputerAttack();
 
-      expect(result.result).toBe("no moves left"); // Changed to check result property
+      expect(result.result).toBe("no moves left");
       expect(game.gameOver).toBe(true);
-      expect(game.winner).toBe(mockHumanPlayer); // Human wins by default
+      expect(game.winner).toBe(mockHumanPlayer);
     });
 
     test("returns game over if game is already over", () => {
@@ -311,15 +305,15 @@ describe("Game", () => {
 
       const result = game.processComputerAttack();
 
-      expect(result.result).toBe("game over"); // Changed to check result property
+      expect(result.result).toBe("game over");
     });
 
     test("returns not your turn if not computer's turn", () => {
-      game.currentPlayerIndex = 0; // Set to human's turn
+      game.currentPlayerIndex = 0;
 
       const result = game.processComputerAttack();
 
-      expect(result.result).toBe("not your turn"); // Added this test
+      expect(result.result).toBe("not your turn");
     });
   });
 

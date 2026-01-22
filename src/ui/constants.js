@@ -47,8 +47,6 @@ export const SHIP_IMAGES = {
   },
 };
 
-export const CELL_SIZE = 45; // 30px
-export const GRID_GAP = 1; // 2px
 export const BOARD_SIZE = 10;
 export const BOARD_PADDING = 0;
 

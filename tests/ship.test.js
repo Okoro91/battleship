@@ -46,7 +46,7 @@ describe("Ship", () => {
       const ship = new Ship(2);
       ship.hit();
       ship.hit();
-      ship.hit(); // Extra hit beyond length
+      ship.hit();
       expect(ship.isSunk()).toBe(true);
     });
 

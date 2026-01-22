@@ -1,6 +1,5 @@
 import SoundManager from "./sound-manager";
 import Game from "./game";
-// import UI from "./ui.js";
 import UI from "./ui/mainUI.js";
 import "./styles.css";
 
@@ -13,7 +12,6 @@ game.initializeGame();
 
 const ui = new UI();
 ui.initialize(game);
-// For debugging/development
 window.game = game;
 window.ui = ui;
 

@@ -1,10 +1,4 @@
-import {
-  CELL_SIZE,
-  GRID_GAP,
-  SHIP_FLEET,
-  SHIP_IMAGES,
-  BOARD_SIZE,
-} from "../constants.js";
+import { SHIP_FLEET, SHIP_IMAGES, BOARD_SIZE } from "../constants.js";
 
 export class DOMUtils {
   static createShipyardHTML() {
@@ -64,19 +58,24 @@ export class DOMUtils {
     shipElement.dataset.length = length;
     shipElement.dataset.orientation = orientation;
 
+    const rootStyles = getComputedStyle(document.documentElement);
+    const cellSize =
+      parseInt(rootStyles.getPropertyValue("--cell-size").trim()) || 45;
+    const gridGap =
+      parseInt(rootStyles.getPropertyValue("--grid-gap").trim()) || 1;
+
     let width, height;
 
     if (orientation === "horizontal") {
-      width = length * CELL_SIZE + (length - 1) * GRID_GAP;
-      height = CELL_SIZE;
+      width = length * cellSize + (length + 1) * gridGap;
+      height = cellSize;
     } else {
-      width = CELL_SIZE;
-      height = length * CELL_SIZE + (length - 1) * GRID_GAP;
+      width = cellSize;
+      height = length * cellSize + (length + 1) * gridGap;
     }
 
-    // Position: (Index * (Size + Gap))
-    const top = startRow * (CELL_SIZE + GRID_GAP);
-    const left = startCol * (CELL_SIZE + GRID_GAP);
+    const top = startRow * (cellSize + gridGap);
+    const left = startCol * (cellSize + gridGap);
 
     shipElement.style.width = `${width}px`;
     shipElement.style.height = `${height}px`;
@@ -90,6 +89,7 @@ export class DOMUtils {
     shipImg.style.height = "100%";
     shipImg.style.display = "block";
     shipImg.draggable = false;
+    shipImg.style.objectFit = "contain";
 
     shipElement.appendChild(shipImg);
     return shipElement;

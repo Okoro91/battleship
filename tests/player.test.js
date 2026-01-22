@@ -82,13 +82,11 @@ describe("Player", () => {
     });
 
     test("computer does not repeat attacks", () => {
-      // Mock the opponent board to return 'miss' for all attacks
       const mockBoard = {
         size: 10,
         receiveAttack: jest.fn().mockReturnValue("miss"),
       };
 
-      // Make 100 attacks (more than all possible coordinates)
       const attacks = [];
       for (let i = 0; i < 100; i++) {
         const result = computerPlayer.attack(mockBoard);
@@ -96,12 +94,8 @@ describe("Player", () => {
         attacks.push(`${x},${y}`);
       }
 
-      // All attacks should be unique within the board bounds
       const uniqueAttacks = new Set(attacks);
-      expect(uniqueAttacks.size).toBe(100); // Should have 100 unique attacks
-
-      // But note: we can only have 100 unique coordinates on 10x10 board
-      // After 100 attacks, the next attack should return 'no moves left' or similar
+      expect(uniqueAttacks.size).toBe(100);
       const result = computerPlayer.attack(mockBoard);
       expect(["no moves left", "already attacked"]).toContain(result);
     });
@@ -120,18 +114,16 @@ describe("Player", () => {
 
       expect(result).toBe(true);
 
-      // Check that the ship was placed on the board
       const boardState = computerPlayer.gameboard.getBoardState();
       const shipCells = boardState.flat().filter((cell) => cell === "ship");
       expect(shipCells.length).toBe(3);
     });
 
     test("returns false if ship cannot be placed after many attempts", () => {
-      const computerBoard = new Gameboard(3); // Small board for testing
+      const computerBoard = new Gameboard(3);
       const smallPlayer = new Player("Test", true);
       smallPlayer.gameboard = computerBoard;
 
-      // Fill the board with ships
       for (let i = 0; i < 3; i++) {
         for (let j = 0; j < 3; j++) {
           const ship = new Ship(1);
@@ -140,18 +132,18 @@ describe("Player", () => {
       }
 
       const ship = new Ship(2);
-      const result = smallPlayer.placeShipRandomly(ship, 10); // Only try 10 times
+      const result = smallPlayer.placeShipRandomly(ship, 10);
 
       expect(result).toBe(false);
     });
 
     test("can place multiple ships randomly", () => {
       const ships = [
-        new Ship(5), // Carrier
-        new Ship(4), // Battleship
-        new Ship(3), // Cruiser
-        new Ship(3), // Submarine
-        new Ship(2), // Destroyer
+        new Ship(5),
+        new Ship(4),
+        new Ship(3),
+        new Ship(3),
+        new Ship(2),
       ];
 
       ships.forEach((ship) => {
@@ -159,7 +151,6 @@ describe("Player", () => {
         expect(result).toBe(true);
       });
 
-      // Check total ship cells
       const boardState = computerPlayer.gameboard.getBoardState();
       const shipCells = boardState.flat().filter((cell) => cell === "ship");
       expect(shipCells.length).toBe(5 + 4 + 3 + 3 + 2);
@@ -179,7 +170,6 @@ describe("Player", () => {
     });
 
     test("returns false when not all ships are placed", () => {
-      // Only place some ships
       const ship1 = new Ship(5);
       const ship2 = new Ship(4);
 
@@ -194,7 +184,7 @@ describe("Player", () => {
     test("returns all coordinates initially", () => {
       const moves = humanPlayer.getAvailableMoves();
 
-      expect(moves).toHaveLength(100); // 10x10 board
+      expect(moves).toHaveLength(100);
       expect(moves).toContainEqual([0, 0]);
       expect(moves).toContainEqual([9, 9]);
     });
@@ -223,7 +213,6 @@ describe("Player", () => {
       const ship = new Ship(2);
       humanPlayer.gameboard.placeShip(ship, 0, 0, "horizontal");
 
-      // Sink the ship
       humanPlayer.gameboard.receiveAttack(0, 0);
       humanPlayer.gameboard.receiveAttack(0, 1);
 
@@ -234,7 +223,6 @@ describe("Player", () => {
       const ship = new Ship(2);
       humanPlayer.gameboard.placeShip(ship, 0, 0, "horizontal");
 
-      // Only hit once
       humanPlayer.gameboard.receiveAttack(0, 0);
 
       expect(humanPlayer.hasLost()).toBe(false);

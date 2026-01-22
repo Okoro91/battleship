@@ -9,17 +9,18 @@ export default class Player {
     this.attacksMade = new Set();
     this.availableMoves = this.generateAllCoordinates();
 
-    // AI properties for smarter targeting
     this.targetMode = false;
     this.lastHit = null;
     this.targetDirection = null;
     this.targetStack = [];
     this.huntModeMoves = [];
     this.initializedHuntMode = false;
+
+    this.shipHits = [];
+    this.shipDirection = null;
   }
 
   generateAllCoordinates() {
-    // Return all 100 coordinates, not just checkerboard
     return Array.from({ length: 100 }, (_, index) => [
       Math.floor(index / 10),
       index % 10,
@@ -34,7 +35,7 @@ export default class Player {
 
   humanAttack(opponentBoard, x, y) {
     if (x === null || y === null) {
-      throw new Error("Human player must provide coordinates");
+      throw new Error("Player must provide coordinates");
     }
 
     const coordinateKey = `${x},${y}`;
@@ -60,34 +61,29 @@ export default class Player {
 
     let x, y;
 
-    // Choose move based on AI state
-    if (this.targetMode && this.lastHit) {
+    if (this.targetMode && this.shipDirection) {
+      [x, y] = this.getNextInDirection();
+    } else if (this.targetMode && this.targetStack.length > 0) {
       [x, y] = this.getTargetModeMove();
     } else {
       [x, y] = this.getHuntModeMove();
     }
 
-    // If no valid move found, get random move
     if (x === undefined || y === undefined) {
       [x, y] = this.getRandomMove();
     }
 
-    // Remove from available moves if not already removed
     this.removeAvailableMove(x, y);
-
     const result = opponentBoard.receiveAttack(x, y);
     this.attacksMade.add(`${x},${y}`);
 
-    // Update AI state
     this.updateAIState(x, y, result, opponentBoard);
 
-    // Store last attack coordinates
     this.lastAttack = { x, y, result };
 
     return result;
   }
 
-  // Add this to the Player class
   getLastAttack() {
     return this.lastAttack || null;
   }
@@ -149,14 +145,11 @@ export default class Player {
     });
   }
 
-  // AI: Hunt mode - random attacks until first hit
   getHuntModeMove() {
     if (this.huntModeMoves.length === 0) {
-      // Initialize hunt mode with a checkerboard pattern for better odds
       this.huntModeMoves = this.generateCheckerboardPattern();
     }
 
-    // Try to find a valid move in hunt mode
     for (let i = 0; i < this.huntModeMoves.length; i++) {
       const [x, y] = this.huntModeMoves[i];
       const key = `${x},${y}`;
@@ -165,23 +158,19 @@ export default class Player {
       }
     }
 
-    // If no hunt mode moves left, fall back to random from availableMoves
     return this.getRandomMove();
   }
 
-  // Generate checkerboard pattern for more efficient hunting
   generateCheckerboardPattern() {
     const pattern = [];
     for (let x = 0; x < 10; x++) {
       for (let y = 0; y < 10; y++) {
-        // Every other square (like a chessboard) increases hit probability
         if ((x + y) % 2 === 0) {
           pattern.push([x, y]);
         }
       }
     }
 
-    // Shuffle the pattern
     for (let i = pattern.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [pattern[i], pattern[j]] = [pattern[j], pattern[i]];
@@ -190,14 +179,7 @@ export default class Player {
     return pattern;
   }
 
-  // AI: Target mode - when we've hit a ship, try adjacent cells
   getTargetModeMove() {
-    if (this.targetStack.length === 0 && this.lastHit) {
-      // Generate adjacent moves around the last hit
-      this.generateAdjacentMoves(this.lastHit.x, this.lastHit.y);
-    }
-
-    // Try moves from target stack
     while (this.targetStack.length > 0) {
       const [x, y] = this.targetStack.shift();
       const key = `${x},${y}`;
@@ -207,15 +189,51 @@ export default class Player {
       }
     }
 
-    // If target stack is empty but we're still in target mode,
-    // switch back to hunt mode
     this.targetMode = false;
     this.lastHit = null;
-    this.targetDirection = null;
     return this.getHuntModeMove();
   }
 
-  // Generate adjacent moves around a hit
+  getNextInDirection() {
+    if (!this.shipDirection || this.shipHits.length === 0) {
+      return this.getTargetModeMove();
+    }
+
+    const lastHit = this.shipHits[this.shipHits.length - 1];
+    const [dx, dy] = this.shipDirection;
+
+    let nextX = lastHit.x + dx;
+    let nextY = lastHit.y + dy;
+
+    for (let i = 0; i < 5; i++) {
+      if (this.isValidCoordinate(nextX, nextY)) {
+        const key = `${nextX},${nextY}`;
+        if (!this.attacksMade.has(key)) {
+          return [nextX, nextY];
+        }
+      }
+      nextX += dx;
+      nextY += dy;
+    }
+
+    const firstHit = this.shipHits[0];
+    nextX = firstHit.x - dx;
+    nextY = firstHit.y - dy;
+
+    for (let i = 0; i < 5; i++) {
+      if (this.isValidCoordinate(nextX, nextY)) {
+        const key = `${nextX},${nextY}`;
+        if (!this.attacksMade.has(key)) {
+          return [nextX, nextY];
+        }
+      }
+      nextX -= dx;
+      nextY -= dy;
+    }
+    this.shipDirection = null;
+    return this.getTargetModeMove();
+  }
+
   generateAdjacentMoves(x, y) {
     const directions = [
       [0, 1], // right
@@ -224,87 +242,100 @@ export default class Player {
       [-1, 0], // up
     ];
 
-    // If we have a direction, prioritize that direction
-    if (this.targetDirection) {
-      const [dx, dy] = this.targetDirection;
-      const newX = x + dx;
-      const newY = y + dy;
+    if (this.shipDirection) {
+      const [dx, dy] = this.shipDirection;
 
-      if (this.isValidCoordinate(newX, newY)) {
-        this.targetStack.push([newX, newY]);
+      let forwardX = x + dx;
+      let forwardY = y + dy;
+      if (this.isValidCoordinate(forwardX, forwardY)) {
+        this.targetStack.push([forwardX, forwardY]);
       }
 
-      // Also try the opposite direction
-      const oppositeX = this.lastHit.x - dx;
-      const oppositeY = this.lastHit.y - dy;
-
-      if (this.isValidCoordinate(oppositeX, oppositeY)) {
-        this.targetStack.push([oppositeX, oppositeY]);
+      const firstHit = this.shipHits[0];
+      if (firstHit) {
+        let backwardX = firstHit.x - dx;
+        let backwardY = firstHit.y - dy;
+        if (this.isValidCoordinate(backwardX, backwardY)) {
+          this.targetStack.push([backwardX, backwardY]);
+        }
       }
 
       return;
     }
 
-    // Otherwise, try all four directions
     directions.forEach(([dx, dy]) => {
       const newX = x + dx;
       const newY = y + dy;
 
       if (this.isValidCoordinate(newX, newY)) {
-        this.targetStack.push([newX, newY]);
+        const key = `${newX},${newY}`;
+        if (!this.attacksMade.has(key)) {
+          this.targetStack.push([newX, newY]);
+        }
       }
     });
   }
 
-  // Update AI state based on attack result
   updateAIState(x, y, result, opponentBoard) {
     if (!this.isComputer) return;
 
-    const key = `${x},${y}`;
+    const coordinateKey = `${x},${y}`;
 
     if (result === "hit") {
-      // Enter or stay in target mode
       this.targetMode = true;
 
-      if (this.lastHit) {
-        // We have multiple hits, try to determine direction
-        const dx = x - this.lastHit.x;
-        const dy = y - this.lastHit.y;
+      this.shipHits.push({ x, y });
 
-        // If we have a clear direction (not diagonal)
-        if (
-          (dx === 0 && Math.abs(dy) === 1) ||
-          (dy === 0 && Math.abs(dx) === 1)
-        ) {
-          this.targetDirection = [dx, dy];
+      if (this.shipHits.length >= 2) {
+        const firstHit = this.shipHits[0];
+        const secondHit = this.shipHits[1];
+
+        const dx = secondHit.x - firstHit.x;
+        const dy = secondHit.y - firstHit.y;
+
+        if (dx !== 0) {
+          this.shipDirection = [dx > 0 ? 1 : -1, 0];
+        } else if (dy !== 0) {
+          this.shipDirection = [0, dy > 0 ? 1 : -1];
         }
+
+        this.generateAdjacentMoves(x, y);
+      } else {
+        this.generateAdjacentMoves(x, y);
       }
 
       this.lastHit = { x, y };
     } else if (result === "sunk") {
-      // Ship sunk, reset target mode
       this.targetMode = false;
-      this.lastHit = null;
-      this.targetDirection = null;
+      this.shipHits = [];
+      this.shipDirection = null;
       this.targetStack = [];
+      this.lastHit = null;
+    } else if (result === "miss") {
+      if (this.targetMode && this.shipDirection) {
+        const [dx, dy] = this.shipDirection;
+        this.shipDirection = [-dx, -dy];
+      }
     }
-    // For miss, no state change needed
   }
 
-  // Check if coordinate is valid
   isValidCoordinate(x, y) {
     return x >= 0 && x < 10 && y >= 0 && y < 10;
   }
 
-  // Get a random move (fallback)
   getRandomMove() {
-    if (this.availableMoves.length === 0) return null;
+    if (this.availableMoves.length === 0) return [null, null];
+    const availableMoves = this.availableMoves.filter(([x, y]) => {
+      const key = `${x},${y}`;
+      return !this.attacksMade.has(key);
+    });
 
-    const randomIndex = Math.floor(Math.random() * this.availableMoves.length);
-    const [x, y] = this.availableMoves[randomIndex];
+    if (availableMoves.length === 0) return [null, null];
 
-    // Remove from available moves
-    this.availableMoves.splice(randomIndex, 1);
+    const randomIndex = Math.floor(Math.random() * availableMoves.length);
+    const [x, y] = availableMoves[randomIndex];
+
+    this.removeAvailableMove(x, y);
 
     return [x, y];
   }

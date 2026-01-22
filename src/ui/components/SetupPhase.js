@@ -18,7 +18,7 @@ export class SetupPhase {
   render() {
     this.ui.gameContainer.innerHTML = `
       <div class="setup-phase" id="setup-phase">
-        <h1><span class="icon"><img src="${shipSteer}" alt=""></span> Deploy Your Fleet</h1>
+        <h1><span class="icon"><img class="loading-spinner" src="${shipSteer}" alt=""></span> Deploy Your Fleet</h1>
         <p class="instructions">Drag ships to your board. Tap placed ships to rotate.</p>
 
         <div class="setup-area">
@@ -39,16 +39,21 @@ export class SetupPhase {
 
         <div class="setup-controls">
           <button id="randomize-btn" class="control-btn">
-          <span class="icon"><img src="${dice}" alt=""></span> Randomize
+          <span class="icon"><img class="spin" src="${dice}" alt=""></span> Randomize
           </button>
           <button id="reset-btn" class="control-btn">
-          <span class="icon"><img src="${reset}" alt=""></span> Reset
+          <span class="icon"><img class="spin" src="${reset}" alt=""></span> Reset
           </button>
           <button id="start-battle-btn" class="start-btn" disabled>
-          <span class="icon"><img src="${start}" alt=""></span> Start Battle!
+          <span class="icon"><img class="spin" src="${start}" alt=""></span> Start Battle!
           </button>
         </div>
+        <p  class="footer">
+        design & code by:
+        <a href="https://okoro91.github.io/portfolio/">mi okoro</a>
+      </p>
       </div>
+      
       ${DOMUtils.createGameOverModalHTML()}
     `;
 
@@ -60,18 +65,15 @@ export class SetupPhase {
     const boardGrid = document.querySelector(".placement-board .board-grid");
     if (!boardGrid) return;
 
-    // Board Events
     boardGrid.addEventListener("dragover", (e) => this.handleDragOver(e));
     boardGrid.addEventListener("dragleave", (e) => this.handleDragLeave(e));
     boardGrid.addEventListener("drop", (e) => this.handleDrop(e));
 
-    // Shipyard Events
     document.querySelectorAll(".ship-token-container").forEach((ship) => {
       ship.addEventListener("dragstart", (e) => this.handleDragStart(e));
       ship.addEventListener("dragend", (e) => this.handleDragEnd(e));
     });
 
-    // Shipyard rotation listeners
     document.querySelectorAll(".ship-token-container").forEach((container) => {
       container.addEventListener("click", (e) => {
         e.stopPropagation();
@@ -79,7 +81,6 @@ export class SetupPhase {
       });
     });
 
-    // Buttons
     document
       .getElementById("randomize-btn")
       ?.addEventListener("click", () => this.randomizeFleet());
@@ -107,7 +108,7 @@ export class SetupPhase {
   }
 
   handleDragOver(event) {
-    event.preventDefault(); // Necessary to allow dropping
+    event.preventDefault();
     event.dataTransfer.dropEffect = "move";
 
     const cell = event.target.closest(".board-cell");

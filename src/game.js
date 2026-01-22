@@ -13,26 +13,20 @@ export default class Game {
   initializeGame(predeterminedShips = null) {
     this.predeterminedShips = predeterminedShips;
 
-    // Reset game state
     this.gameOver = false;
     this.winner = null;
     this.currentPlayerIndex = 0;
 
-    // Reset players (only if they have the required methods)
     this.players.forEach((player) => {
-      // Check if player has a gameboard constructor
       if (player.gameboard && player.gameboard.constructor) {
         player.gameboard = new player.gameboard.constructor();
       }
 
-      // Reset attacks and available moves
       player.attacksMade = new Set();
 
-      // Only call generateAllCoordinates if it exists
       if (typeof player.generateAllCoordinates === "function") {
         player.availableMoves = player.generateAllCoordinates();
       } else {
-        // Fallback: generate coordinates manually
         player.availableMoves = Array.from({ length: 100 }, (_, index) => [
           Math.floor(index / 10),
           index % 10,
@@ -40,16 +34,13 @@ export default class Game {
       }
     });
 
-    // Place ships for computer (random)
     if (this.players[1].placeAllShipsRandomly) {
       this.players[1].placeAllShipsRandomly();
     }
 
-    // Place ships for human
     if (predeterminedShips && predeterminedShips.length > 0) {
       this.placePredeterminedShips();
     } else {
-      // Default predetermined ships if none provided
       this.placeDefaultShips();
     }
   }
@@ -105,8 +96,6 @@ export default class Game {
     if (this.gameOver) {
       return { result: "game over" };
     }
-
-    // Validate that it's actually human's turn
     if (this.getCurrentPlayer().name !== "Human") {
       return { result: "not your turn" };
     }
@@ -118,8 +107,6 @@ export default class Game {
 
     if (result === "hit" || result === "miss" || result === "sunk") {
       this.checkGameOver();
-
-      // Only switch turn if it's a miss
       if (!this.gameOver && result === "miss") {
         this.switchTurn();
         return { result, nextPlayer: "computer" };
@@ -135,8 +122,6 @@ export default class Game {
     if (this.gameOver) {
       return { result: "game over" };
     }
-
-    // Validate that it's actually computer's turn
     if (this.getCurrentPlayer().name !== "Computer") {
       return { result: "not your turn" };
     }
@@ -156,12 +141,11 @@ export default class Game {
       this.checkGameOver();
 
       if (!this.gameOver) {
-        // Only switch turn if it's a miss
         if (result === "miss") {
           this.switchTurn();
           return { result, nextPlayer: "human" };
         }
-        return { result, nextPlayer: "computer" }; // Computer gets another turn
+        return { result, nextPlayer: "computer" };
       }
     }
 
