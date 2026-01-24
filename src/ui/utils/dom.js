@@ -79,8 +79,8 @@ export class DOMUtils {
 
     shipElement.style.width = `${width}px`;
     shipElement.style.height = `${height}px`;
-    shipElement.style.top = `${top}px`;
-    shipElement.style.left = `${left}px`;
+    shipElement.style.top = `${top - 10}px`;
+    shipElement.style.left = `${left - 8}px`;
     shipElement.style.pointerEvents = "auto";
 
     const shipImg = document.createElement("img");
