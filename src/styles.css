@@ -218,8 +218,6 @@ body {
   grid-template-columns: repeat(10, 45px);
   grid-template-rows: repeat(10, 45px);
   padding: 0;
-  border: 2px solid #004d99;
-  background-color: rgba(0, 77, 153, 0.8);
 }
 
 .placement-board .board-grid {
@@ -449,17 +447,14 @@ body {
   border: 2px solid var(--accent-blue);
 }
 
-.game-board .board-grid {
+#human-board .board-grid,
+#computer-board .board-grid {
   background-image: url("./assets/background/board-bg.png");
   background-size: cover;
   background-position: center;
-  position: relative;
-  display: grid;
-  grid-template-columns: repeat(10, 45px);
-  grid-template-rows: repeat(10, 45px);
-  padding: 0;
   border: 2px solid #004d99;
-  background-color: rgba(0, 77, 153, 0.8);
+  width: calc(var(--cell-size) * 10);
+  height: calc(var(--cell-size) * 10);
 }
 
 .board-cell:hover {
@@ -521,12 +516,6 @@ body {
 
 .board-cell.hit::after {
   background-image: url("./assets/images/hit.png");
-}
-
-#computer-board,
-#human-board {
-  position: relative;
-  box-sizing: border-box;
 }
 
 .ship-element {
@@ -857,7 +846,6 @@ a:hover {
   }
 
   body {
-    padding: 10px;
     min-height: 100vh;
     overflow-x: hidden;
   }
@@ -959,7 +947,8 @@ a:hover {
   }
 
   .game-header::after {
-    top: -100%;
+    top: -150%;
+    left: -200%;
     font-size: 1.5rem;
     animation: ship-sail 20s linear infinite;
   }
@@ -1025,10 +1014,6 @@ a:hover {
     --spacing-md: 10px;
     --spacing-lg: 15px;
     --spacing-xl: 20px;
-  }
-
-  body {
-    padding: 8px;
   }
 
   .setup-phase {
@@ -1116,10 +1101,6 @@ a:hover {
 
   .game-header::before {
     animation: wave-slide 5s ease-in-out infinite;
-  }
-
-  .game-header::after {
-    display: none;
   }
 
   #game-status {
